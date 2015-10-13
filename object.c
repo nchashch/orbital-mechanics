@@ -74,20 +74,32 @@ vector_t thrust_force(active_object_t obj)
 	return obj.thrust;
 }
 
-/* Fd = (1/2) * Cd * p * v^2 * A */
+double start_altitude;
+
+double geopotential_height(double R);
+double air_density(double R);
+
+/* Fd = 0.5 * Cd * A * p * v^2 */
 /* Cd is the drag coefficient */
 /* p is the air density */
 /* v is the body's velocity */
 /* A is area of the body, normal to the flow. */
 
-/* p = pb * exp_base^(1 + (g0 * M)/(R * Lb)) Lb > 0 */
-/* p = pb * exp_base^(-(g0 * M * (h - hb)) / (R * Tb)), Lb == 0 */
-/* exp_base = (1 - (Lb * (h - hb)) / Tb) */
+vector_t drag_force(active_object_t obj)
+{
+	double R = length(obj.r); /* Distance to the center of the earth. */
+	vector_t v = obj.v;
+	double v_length = length(v);
+	double Cd = obj.Cd;
+	double A = obj.A;
+	double p = air_density(R);
 
-/* Troposphere, Stratosphere, Mesosphere, Termosphere */
+	double scalar_part = -0.5 * Cd * A * p * v_length;
+	vector_t F = vmul(v, scalar_part);
+	return F;
+}
 
 /* International Standard Atmosphere data */
-
 
 /*
 0 Troposphere
@@ -150,25 +162,6 @@ double M_air = 0.0289644; /* Air molar mass */
 double g0 = 9.80665; /* Gravitational acceleration */
 double R_star = 8.31432; /* Universal gas constant for air */
 
-double start_altitude;
-
-double geopotential_height(double R);
-double air_density(double R);
-
-vector_t drag_force(active_object_t obj)
-{
-	double R = length(obj.r);
-	vector_t v = obj.v;
-	double v_length = length(v);
-	double Cd = obj.Cd;
-	double A = obj.A;
-	double p = air_density(R);
-
-	double scalar_part = -0.5 * Cd * A * p * v_length;
-	vector_t F = vmul(v, scalar_part);
-	return F;
-}
-
 double air_density(double R) {
 	double altitude = R - R_earth;
 
@@ -189,7 +182,9 @@ double air_density(double R) {
 	if(fabs(Lb_) < epsilon)
 	{
 		return pb_ * exp((-g0 * M_air * (h - hb_)) / (R_star * Tb_));
-	} else {
+	}
+	else
+	{
 		double base = 1 - Lb_ * (h - hb_) / Tb_;
 		double degree = 1 + (g0 * M_air) / (R_star * Lb_);
 		return pb_ * pow(base, degree);
