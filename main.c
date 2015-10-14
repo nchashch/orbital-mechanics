@@ -75,9 +75,11 @@ int main(int argc, char**argv)
 		done = frame(dt, kbd, mousex, mousey, mouseb);
 		render();
 		SDL_GL_SwapWindow(wnd);
-		/* sleep DELAY_TIME ms */
-		SDL_Delay(DELAY_TIME);
-		dt = (double)(SDL_GetTicks() - start_time) / 1.0e3;
+		/* sleep */
+		int dt_int = SDL_GetTicks() - start_time;
+		if(dt_int < DELAY_TIME)
+			SDL_Delay(DELAY_TIME - dt_int);
+		dt = (double)dt_int / 1.0e3;
 	}
 	frame_shutdown();
 	render_shutdown();
