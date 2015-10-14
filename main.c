@@ -1,5 +1,5 @@
 #include "SDL.h"
-#define DELAY_TIME 50
+#define DELAY_TIME 100
 
 void frame_init();
 int frame
