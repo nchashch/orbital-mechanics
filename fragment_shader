@@ -1,0 +1,8 @@
+#version 430 core
+uniform vec4 color = vec4(0.9, 0.6, 0.3, 1.0);
+in vec4 projectedPosition;
+out vec4 color_output;
+
+void main(void) {
+	color_output = color;
+}

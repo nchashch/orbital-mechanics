@@ -1,7 +1,7 @@
 CC=clang
 LIBS=`sdl2-config --libs` -lm -lGL
 CFLAGS=`sdl2-config --cflags` -I/usr/include/GL/
-SRC=main.c frame.c vector.c matrix.c transformation.c object.c
+SRC=main.c frame.c vector.c matrix.c transformation.c object.c text.c
 all:
 	$(CC) $(SRC) $(LIBS) $(CFLAGS)
 clean:

@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #define GL_GLEXT_PROTOTYPES
 #include <glcorearb.h>
+#include "text.h"
+#include "matrix.h"
+#include "transformation.h"
 
 void frame_init()
 {}
@@ -21,13 +24,12 @@ int frame
 void frame_shutdown()
 {}
 
-const char* vshader_src =
-"\
-";
+float data[] = {
+ 0.0f,  0.5f, 0.0f,
+-0.5f, -0.5f, 0.0f,
+ 0.5f, -0.5f, 0.0f };
 
-const char* fshader_src =
-"\
-";
+GLuint buffer_id;
 
 GLuint vshader_id;
 GLuint fshader_id;
@@ -35,7 +37,19 @@ GLuint shader_program_id;
 
 void render_init()
 {
-	glClearColor(0.1, 0.1, 0.1, 1.0);
+
+	glGenBuffers(1, &buffer_id);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glDisableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glClearColor(0.03, 0.03, 0.03, 1.0);
+
+	const char* vshader_src = load_file("vertex_shader");
+	const char* fshader_src = load_file("fragment_shader");
 
 	GLint shader_src_length;
 	GLint info_log_length;
@@ -88,12 +102,31 @@ void render_init()
 		free(info_log);
 		info_log = NULL;
 	}
+
+	matrix_t modelview = identity();
+	matrix_t projection = identity();
+	glUseProgram(shader_program_id);
+	glUniformMatrix4fv(0, 1, GL_FALSE, modelview.d);
+	glUniformMatrix4fv(1, 1, GL_FALSE, projection.d);
+	glUseProgram(0);
 }
 
 void render()
 {
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glUseProgram(shader_program_id);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+	glEnableVertexAttribArray(0);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDisableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glUseProgram(0);
 }
 
 void render_shutdown()
-{}
+{
+	glDeleteShader(vshader_id);
+	glDeleteShader(fshader_id);
+	glDeleteProgram(shader_program_id);
+	glDeleteBuffers(1, &buffer_id);
+}
