@@ -1,6 +1,6 @@
 CC=clang++
 LIBS=`sdl2-config --libs` -lm -lGL
-CFLAGS=`sdl2-config --cflags` -I/usr/include/GL/
+CFLAGS=`sdl2-config --cflags` -I/usr/include/GL/ -I./src/glm/
 SRC=src/*.cpp
 all:
 	$(CC) $(SRC) $(LIBS) $(CFLAGS)

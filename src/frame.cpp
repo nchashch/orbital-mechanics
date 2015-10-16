@@ -3,8 +3,8 @@
 #define GL_GLEXT_PROTOTYPES
 #include <glcorearb.h>
 #include "text.h"
-#include "matrix.h"
-#include "transformation.h"
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
 
 void frame_init()
 {}
@@ -25,9 +25,9 @@ void frame_shutdown()
 {}
 
 float data[] = {
- 0.0f,  0.5f, 0.0f,
--0.5f, -0.5f, 0.0f,
- 0.5f, -0.5f, 0.0f };
+ 0.0f,  0.5f, -0.8f,
+-0.5f, -0.5f, -2.2f,
+ 0.5f, -0.5f,  1.0f };
 
 GLuint buffer_id;
 
@@ -103,18 +103,25 @@ void render_init()
 		info_log = NULL;
 	}
 
-	matrix_t modelview = identity();
-	matrix_t projection = identity();
-	glUseProgram(shader_program_id);
-	glUniformMatrix4fv(0, 1, GL_FALSE, modelview.d);
-	glUniformMatrix4fv(1, 1, GL_FALSE, projection.d);
-	glUseProgram(0);
 }
 
 void render()
 {
+	glm::vec3 axis = glm::vec3(1.0, 0.0, 0.0);
+	float angle = 0.0;
+	glm::vec3 translation = glm::vec3(0.4, 0.0, -2.0);
+	glm::vec3 scale = glm::vec3(1.0, 1.0, 1.0);
+	glm::vec3 eye = glm::vec3(0.0, 0.0, 0.0);
+	glm::vec3 center = glm::vec3(0.0, 0.0, -1.0);
+	glm::vec3 up = glm::vec3(0.0, 1.0, 0.0);
+	glm::mat4 modelView =
+			glm::translate(glm::mat4(1.0), translation) *
+			glm::rotate(glm::mat4(1.0), angle, axis);
+	glm::mat4 perspective = glm::perspective(M_PI/2, 1.0, 0.1, 10.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(shader_program_id);
+	glUniformMatrix4fv(0, 1, GL_FALSE, &modelView[0][0]);
+	glUniformMatrix4fv(1, 1, GL_FALSE, &perspective[0][0]);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
 	glEnableVertexAttribArray(0);
 	glDrawArrays(GL_LINE_LOOP, 0, 3);
