@@ -16,7 +16,7 @@
 const int NUMBER_OF_LAYERS = 8;
 
 /* Base Atmospheric Density kg/m3 */
-const double pb[] = {
+const float pb[] = {
 1.29837e+0,
 3.63918e-1,
 8.80348e-2,
@@ -27,7 +27,7 @@ const double pb[] = {
 6.95786e-6 };
 
 /* Base Temperature K */
-const double Tb[] = {
+const float Tb[] = {
 +19.0 + 273.15,
 -56.5 + 273.15,
 -56.5 + 273.15,
@@ -38,7 +38,7 @@ const double Tb[] = {
 -86.28 + 273.15 };
 
 /* Base Lapse Rate K/m */
-const double Lb[] = {
+const float Lb[] = {
 -6.5e-3,   
 +0.0e-3,   
 +1.0e-3,   
@@ -49,7 +49,7 @@ const double Lb[] = {
 +0.0e-3 }; 
 
 /* Base Height m (geopotential) */
-const double hb[] = {
+const float hb[] = {
 -6.10e2, 
 +1.1e4,
 +2.0e4,

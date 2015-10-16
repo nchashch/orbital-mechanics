@@ -1,19 +1,19 @@
+#include <glm.hpp>
 #include "constants.h"
 #include "atmosphere.h"
-#include "vector.h"
 #include "object.h"
 
-vector_t gravity_force(active_object_t obj)
+glm::vec3 gravity_force(active_object_t obj)
 {
-	vector_t dr = vsub(gs_r, obj.r);
-	double distance = length(dr);
-	double scalar_part = mu_earth * obj.m / (distance*distance);
-	vector_t vector_part = norm(dr);
-	vector_t force = vmul(vector_part, scalar_part);
+	glm::vec3 dr = gs_r - obj.r;
+	float distance = glm::length(dr);
+	float scalar_part = mu_earth * obj.m / (distance*distance);
+	glm::vec3 vector_part = glm::normalize(dr);
+	glm::vec3 force = vector_part * scalar_part;
 	return force;
 }
 
-vector_t thrust_force(active_object_t obj)
+glm::vec3 thrust_force(active_object_t obj)
 {
 	return obj.thrust;
 }
@@ -24,16 +24,18 @@ vector_t thrust_force(active_object_t obj)
 /* v is the body's velocity */
 /* A is area of the body, normal to the flow. */
 
-vector_t drag_force(active_object_t obj)
-{
-	double R = length(obj.r); /* Distance to the center of the earth. */
-	vector_t v = obj.v;
-	double v_length = length(v);
-	double Cd = obj.Cd;
-	double A = obj.A;
-	double p = air_density(R);
 
-	double scalar_part = -0.5 * Cd * A * p * v_length;
-	vector_t F = vmul(v, scalar_part);
+glm::vec3 drag_force(active_object_t obj)
+{
+	float R = glm::length(obj.r);
+	float v_length = glm::length(obj.v);
+	float Cd = obj.Cd;
+	float A = obj.A;
+	float p = air_density(R);
+	float scalar_part = -0.5 * Cd * A * p * v_length * v_length;
+
+	glm::vec3 vector_part = glm::normalize(obj.v);
+	glm::vec3 F = vector_part * scalar_part;
 	return F;
 }
+

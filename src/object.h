@@ -1,3 +1,41 @@
+#ifndef _OBJECT_H_
+#define _OBJECT_H_
+
+#include <glm.hpp>
+
+const int NAME_LENGTH = 255; /* Excluding '\0' */
+
+typedef struct {
+	const char* name;
+	float ecc;
+	float a;
+	float inc;
+	float LAN;
+	float AP;
+	float M0;
+	float epoch;
+	float m;
+	float Cd;
+	float A;
+} inactive_object_t;
+
+typedef struct {
+	glm::vec3 r;
+	glm::vec3 v;
+	glm::vec3 thrust;
+	float m;
+	float Cd;
+	float A;
+} active_object_t;
+
+inactive_object_t deactivate(active_object_t obj);
+active_object_t activate(inactive_object_t obj);
+active_object_t integrate
+		(active_object_t obj,
+		glm::vec3 (*force)(active_object_t obj),
+		float dt, float elapsed_time);
+#endif
+
 /*
 
 Inactive object
@@ -24,40 +62,3 @@ Area normal to the velocity: A
 
 */
 
-#ifndef _OBJECT_H_
-#define _OBJECT_H_
-
-#include "vector.h"
-
-const int NAME_LENGTH = 255; /* Excluding '\0' */
-
-typedef struct {
-	const char* name;
-	double ecc;
-	double a;
-	double inc;
-	double LAN;
-	double AP;
-	double M0;
-	double epoch;
-	double m;
-	double Cd;
-	double A;
-} inactive_object_t;
-
-typedef struct {
-	vector_t r;
-	vector_t v;
-	vector_t thrust;
-	double m;
-	double Cd;
-	double A;
-} active_object_t;
-
-inactive_object_t deactivate(active_object_t obj);
-active_object_t activate(inactive_object_t obj);
-active_object_t integrate
-		(active_object_t obj,
-		vector_t (*force)(active_object_t obj),
-		double dt, double elapsed_time);
-#endif
