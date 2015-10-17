@@ -7,6 +7,7 @@
 #include <glcorearb.h>
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
+#include "loadShader.h"
 
 float angle;
 const float angle_change_rate = 10.25f;
@@ -57,86 +58,9 @@ void render_init()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glClearColor(0.03, 0.03, 0.03, 1.0);
-
-	std::ifstream vertex_ifs(vertex_shader_filename);
-	std::string vshader_src = "";
-	if(vertex_ifs.is_open())
-	{
-		std::string buf = "";
-		while(std::getline(vertex_ifs, buf))
-		{
-			vshader_src += buf;
-			vshader_src += '\n';
-		}
-		vertex_ifs.close();
-	}
-
-	std::ifstream fragment_ifs(fragment_shader_filename);
-	std::string fshader_src = "";
-	if(fragment_ifs.is_open())
-	{
-		std::string buf = "";
-		while(std::getline(fragment_ifs, buf))
-		{
-			fshader_src += buf;
-			fshader_src += '\n';
-		}
-		fragment_ifs.close();
-	}
-
-	GLint shader_src_length;
-	GLint info_log_length;
-	char* info_log = NULL;
-
-	vshader_id = glCreateShader(GL_VERTEX_SHADER);
-	shader_src_length = vshader_src.length();
-	char const * vshader_src_ptr = vshader_src.c_str();
-	glShaderSource(vshader_id, 1, &vshader_src_ptr, &shader_src_length);
-	glCompileShader(vshader_id);
-
-	glGetShaderiv(vshader_id, GL_INFO_LOG_LENGTH, &info_log_length);
-	if(info_log_length > 0)
-	{
-		info_log = (char*)malloc(info_log_length + 1);
-		info_log[info_log_length] = '\0';
-		glGetShaderInfoLog(vshader_id, info_log_length, NULL, info_log);
-		std::cout << info_log;
-		free(info_log);
-		info_log = NULL;
-	}
-
-	fshader_id = glCreateShader(GL_FRAGMENT_SHADER);
-	shader_src_length = fshader_src.length();
-	char const * fshader_src_ptr = fshader_src.c_str();
-	glShaderSource(fshader_id, 1, &fshader_src_ptr, &shader_src_length);
-	glCompileShader(fshader_id);
-
-	glGetShaderiv(fshader_id, GL_INFO_LOG_LENGTH, &info_log_length);
-	if(info_log_length > 0)
-	{
-		info_log = (char*)malloc(info_log_length + 1);
-		info_log[info_log_length] = '\0';
-		glGetShaderInfoLog(fshader_id, info_log_length, NULL, info_log);
-		std::cout << info_log;
-		free(info_log);
-		info_log = NULL;
-	}
-
-	shader_program_id = glCreateProgram();
-	glAttachShader(shader_program_id, vshader_id);
-	glAttachShader(shader_program_id, fshader_id);
-	glLinkProgram(shader_program_id);
-
-	glGetProgramiv(shader_program_id, GL_INFO_LOG_LENGTH, &info_log_length);
-	if(info_log_length > 0)
-	{
-		info_log = (char*)malloc(info_log_length + 1);
-		info_log[info_log_length] = '\0';
-		glGetProgramInfoLog(shader_program_id, info_log_length, NULL, info_log);
-		std::cout << info_log;
-		free(info_log);
-		info_log = NULL;
-	}
+	vshader_id = loadShader(GL_VERTEX_SHADER, vertex_shader_filename);
+	fshader_id = loadShader(GL_FRAGMENT_SHADER, fragment_shader_filename);
+	shader_program_id = loadProgram(vshader_id, fshader_id);
 }
 
 void render()
