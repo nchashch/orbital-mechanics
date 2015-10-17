@@ -43,8 +43,8 @@ GLuint vshader_id;
 GLuint fshader_id;
 GLuint shader_program_id;
 
-const char * vertex_shader_filename = "vertex_shader";
-const char * fragment_shader_filename = "fragment_shader";
+const char * vertex_shader_filename = "vertex_shader.vert";
+const char * fragment_shader_filename = "fragment_shader.frag";
 
 void render_init()
 {

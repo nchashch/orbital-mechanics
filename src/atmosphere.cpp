@@ -7,6 +7,7 @@ float geopotential_height(float R) {
 	return (M_earth * G / g0) * (1/R_earth - 1/R);
 }
 
+/* kg / m^3 */
 float air_density(float R) {
 	float altitude = R - R_earth;
 
