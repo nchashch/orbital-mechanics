@@ -5,28 +5,21 @@ Object::Object
 	glm::vec3 r,
 	glm::vec3 v,
 	glm::vec3 thrust,
-	float dt, float m, float Cd, float A)
+	float dt, float m, float Cd, float A) :
+		name(name),
+		r(r),
+		v(v),
+		thrust(thrust),
+		dt(dt),
+		m(m),
+		Cd(Cd),
+		A(A)
 {
-	this->name = name;
-	this->r = r;
-	this->v = v;
-	this->thrust = thrust;
-	this->dt = dt;
-	this->m = m;
-	this->Cd = Cd;
-	this->A = A;
 }
 
 Object::Object(const Object &obj)
 {
-	this->name = obj.name;
-	this->r = obj.r;
-	this->v = obj.v;
-	this->thrust = obj.thrust;
-	this->dt = obj.dt;
-	this->m = obj.m;
-	this->Cd = obj.Cd;
-	this->A = obj.A;
+	*this = obj;
 }
 
 Object Object::operator= (const Object &obj)

@@ -1,66 +1,37 @@
 #include <cmath>
+#include <iostream>
 #include "Circle.h"
 
-int intPow(int base, int degree);
-void circleData(int numberVertices, GLuint buffer);
-
-void Circle::render(int LOD) {
-	if(LOD < 0 || LOD >= LODs_number)
-	{
-		return;
-	}
-	int count = intPow(2, LOD_min) * intPow(2, LOD);
-	glBindBuffer(GL_ARRAY_BUFFER, buffers[LOD]);
-	glEnableVertexAttribArray(0);
-	glDrawArrays(GL_LINE_LOOP, 0, count);
-	glDisableVertexAttribArray(0);
+void Circle::render() {
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glDrawArrays(GL_LINE_LOOP, 0, vertexNumber);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-int intPow(int base, int degree);
-void circleData(int numberVertices, GLuint buffer);
-
-Circle::Circle(int LODs_number, int LOD_min)
+Circle::Circle(int vertexNumber) :
+	vertexNumber(vertexNumber)
 {
-	buffers = new GLuint[LODs_number];
-	glGenBuffers(LODs_number, buffers);
-	int LOD = intPow(2, LOD_min);
-	for(int i = 0; i < LODs_number; ++i)
-	{
-		circleData(LOD, buffers[i]);
-	}
-}
+	glGenBuffers(1, &buffer);
 
-void circleData(int numberVertices, GLuint buffer)
-{
-	float *vertices = new float[numberVertices * 3];
+	float *vertices = new float[vertexNumber * 3];
 
-	const float radiansStep = 2*M_PI / numberVertices;
-	for(int i = 0; i < numberVertices; ++i)
+	const float radiansStep = 2*M_PI / vertexNumber;
+	for(int i = 0; i < vertexNumber; ++i)
 	{
 		float theta = radiansStep * i;
-		vertices[numberVertices + 0] = cos(theta);
-		vertices[numberVertices + 1] = sin(theta);
-		vertices[numberVertices + 2] = 0.0f;
+		vertices[3*i + 0] = cos(theta);
+		vertices[3*i + 1] = sin(theta);
+		vertices[3*i + 2] = 0.0f;
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, numberVertices * sizeof(float) * 3, vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertexNumber * sizeof(float) * 3, vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
-int intPow(int base, int degree)
-{
-	int exp = 1;
-	for(int i = 0; i < exp; ++i)
-	{
-		exp *= base;
-	}
-	return exp;
+	delete vertices;
 }
 
 Circle::~Circle()
 {
-	glDeleteBuffers(LODs_number, buffers);
-	delete buffers;
+	glDeleteBuffers(1, &buffer);
 }

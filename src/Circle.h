@@ -6,12 +6,11 @@
 class Circle
 {
 public:
-	Circle(int LODs_number, int LOD_min);
+	Circle(int vertexNumber);
 	~Circle();
-	void render(int LOD);
+	void render();
 private:
-	int LODs_number;
-	int LOD_min; /* Minimum LOD, There are 2^LOD_min vertices in buffers[0] LOD. */
-	GLuint *buffers;
+	int vertexNumber;
+	GLuint buffer;
 };
 #endif
