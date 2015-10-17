@@ -5,7 +5,7 @@ void frame_init();
 int frame
 	(float dt,
 	const Uint8* kbd,
-	float mousex, float mousey, Uint32 mouseb);
+	float dx, float dy, Uint32 mouseb);
 void frame_shutdown();
 void render_init();
 void render();
@@ -22,7 +22,7 @@ int main(int argc, char**argv)
 			("",
 			SDL_WINDOWPOS_UNDEFINED,
 			SDL_WINDOWPOS_UNDEFINED,
-			512, 512,
+			1366, 768,
 			SDL_WINDOW_OPENGL);
 	if(wnd == NULL)
 	{
@@ -45,6 +45,9 @@ int main(int argc, char**argv)
 	frame_init();
 	render_init();
 
+	float mousex_old;
+	float mousey_old;
+
 	while(!done)
 	{
 		int start_time = SDL_GetTicks();
@@ -62,17 +65,22 @@ int main(int argc, char**argv)
 		int imousex, imousey; /* i for int */
 		Uint32 mouseb = SDL_GetMouseState(&imousex, &imousey);
 		/* convert "integer" coordinates to "floating point" coordinates */
-		/* (0.0, 0.0) is monitor center */
+		/* (0.5, 0.5) is monitor center */
 		/* (1.0, 1.0) is top right corner */
-		/* (-1.0, -1.0) is bottom left corner */
+		/* (0.0, 0.0) is bottom left corner */
 		float mousex, mousey;
 		int wnd_w, wnd_h;
 		SDL_GetWindowSize(wnd, &wnd_w, &wnd_h);
-		int half_wnd_w = wnd_w / 2;
-		int half_wnd_h = wnd_h / 2;
-		mousex = (float)(imousex - half_wnd_w)/(half_wnd_w);
-		mousey = -(float)(imousey - half_wnd_h)/(half_wnd_h);
-		done = frame(dt, kbd, mousex, mousey, mouseb);
+		mousex = (float)(imousex)/(wnd_w);
+		mousey = 1.0f - (float)(imousey)/(wnd_h);
+
+		float dx = mousex - mousex_old;
+		float dy = mousey - mousey_old;
+
+		mousex_old = mousex;
+		mousey_old = mousey;
+
+		done = frame(dt, kbd, dx, dy, mouseb);
 		render();
 		SDL_GL_SwapWindow(wnd);
 		/* sleep */

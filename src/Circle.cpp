@@ -2,10 +2,18 @@
 #include <iostream>
 #include "Circle.h"
 
-void Circle::render() {
+void Circle::render
+		(GLuint program,
+		glm::mat4 modelView, glm::mat4 perspective,
+		glm::vec4 color, GLenum mode) {
+	glUseProgram(program);
+	glUniformMatrix4fv(0, 1, GL_FALSE, &modelView[0][0]);
+	glUniformMatrix4fv(1, 1, GL_FALSE, &perspective[0][0]);
+	glUniform4fv(2, 1, &color[0]);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glDrawArrays(GL_LINE_LOOP, 0, vertexNumber);
+	glDrawArrays(mode, 0, vertexNumber);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glUseProgram(0);
 }
 
 Circle::Circle(int vertexNumber) :
