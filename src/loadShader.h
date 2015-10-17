@@ -1,5 +1,6 @@
 #ifndef _LOAD_SHADER_H_
 #define _LOAD_SHADER_H_
+#include <string>
 #define GL_GLEXT_PROTOTYPES
 #include <glcorearb.h>
 

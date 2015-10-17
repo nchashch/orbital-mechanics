@@ -1,9 +1,5 @@
 #include "SDL.h"
 #include <cmath>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string>
 #define GL_GLEXT_PROTOTYPES
 #include <glcorearb.h>
 #include <glm.hpp>
