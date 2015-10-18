@@ -5,7 +5,8 @@
 void Circle::render
 		(GLuint program,
 		glm::mat4 modelView, glm::mat4 perspective,
-		glm::vec4 color, GLenum mode) {
+		glm::vec4 color, GLenum mode) const
+{
 	glUseProgram(program);
 	glUniformMatrix4fv(0, 1, GL_FALSE, &modelView[0][0]);
 	glUniformMatrix4fv(1, 1, GL_FALSE, &perspective[0][0]);
@@ -36,7 +37,7 @@ Circle::Circle(int vertexNumber) :
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	delete vertices;
+	delete[] vertices;
 }
 
 Circle::~Circle()

@@ -1,27 +1,48 @@
 #include "SDL.h"
 #include <cmath>
+#include <iostream>
 #define GL_GLEXT_PROTOTYPES
 #include <glcorearb.h>
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include "loadShader.h"
 #include "Circle.h"
+#include "Object.h"
+#include "renderEarth.h"
+#include "constants.h"
 
 glm::vec3 eye;
 glm::vec3 center;
 glm::vec3 up;
 
-float zoom_rate = 40.06f;
-float R_min = 10.0f;
-float R_max = 40.0f;
+float zoom_rate = 40.0f;
+float drag_rate = M_PI;
+float R_min = 5.0f;
+float R_max = 100.0f;
 float R = R_min;
-const double far = 100.0f;
+const double far = 300.0f;
 const double near = 0.1f;
 float theta = 0.0f;
 float phi = M_PI/2;
 
+Object *object;
+float t = 0.0f;
 void frame_init()
 {
+	object = new Object
+			("Test object",
+			glm::vec3(0.0f, 2.0f, 1.0f) * R_earth,
+			glm::vec3(7.1e3f, 0.0f, 2.0e3f),
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			t, 1.0f, 1.0f, 1.0f);
+	KeplerianElements ke = object->get_KeplerianElements();
+
+	std::cout << "e = " << ke.e << std::endl;
+	std::cout << "a = " << ke.a << std::endl;
+	std::cout << "inc = " << ke.inc << std::endl;
+	std::cout << "LAN = " << ke.LAN << std::endl;
+	std::cout << "AP = " << ke.AP << std::endl;
+	
 	eye = glm::vec3(1.0f, 0.0f, 0.0f);
 	center = glm::vec3(0.0f, 0.0f, 0.0f);
 	up = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -29,13 +50,17 @@ void frame_init()
 
 int frame
 	(float dt,
+	SDL_Event evt,
 	const Uint8* kbd,
 	float dx, float dy, Uint32 mouseb)
 {
+	t += dt;
+	object->tick(dt);
+	object->recompute_ke(t);
 	if(mouseb & SDL_BUTTON(SDL_BUTTON_LEFT))
 	{
-		theta -= dx * 2 * M_PI;
-		phi += dy * 2 * M_PI;
+		theta -= dx * drag_rate;
+		phi += dy * drag_rate;
 		if(phi < 0.0f)
 		{
 			phi = 0.001f;
@@ -56,7 +81,6 @@ int frame
 	{
 		R -= zoom_rate * dt;
 	}
-
 	if(kbd[SDL_SCANCODE_DOWN] && R < R_max)
 	{
 		R += zoom_rate * dt;
@@ -70,7 +94,9 @@ int frame
 }
 
 void frame_shutdown()
-{}
+{
+	delete object;
+}
 
 GLuint vshader_id;
 GLuint fshader_id;
@@ -93,69 +119,27 @@ void render_init()
 	glLineWidth(2.0f);
 }
 
-glm::mat4 circleToOrbit
-		(float e, float a,
-		float inc, float LAN, float AP);
 void render()
 {
-	glm::mat4 orbitTransform = circleToOrbit
-					(0.3f, 4.7f,
-					 0.3f, 0.8f, 0.6f);
 	glm::mat4 camera = glm::lookAt(eye, center, up);
-	glm::mat4 modelViewOrbit =
-				camera *
-				orbitTransform;
 
 	float aspect = 1366.0f/768.0f;
 	glm::mat4 projection = glm::perspective(M_PI/4, 1366.0/768.0, near, far);
+
 	glm::vec4 colorOrbit(1.0f, 1.0f, 1.0f, 1.0f);
+	glm::vec4 colorObject(1.0f, 0.3f, 0.3f, 1.0f);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glm::vec4 colorEquator(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec4 colorMeridian(1.0f, 1.0f, 1.0f, 1.0f);
-	circle->render(shader_program_id, modelViewOrbit, projection, colorOrbit, GL_LINE_LOOP);
-	glm::mat4 modelViewEquator = camera;
-	circle->render(shader_program_id, modelViewEquator, projection, colorEquator, GL_LINE_LOOP);
-
-	glm::vec3 x_axis(1.0f, 0.0f, 0.0f);
-	glm::vec3 y_axis(0.0f, 1.0f, 0.0f);
-	glm::vec3 z_axis(0.0f, 0.0f, 1.0f);
-	float angle = M_PI/2;
-
-	glm::mat4 modelViewMeridian =
-				camera *
-				glm::rotate(glm::mat4(1.0f), angle, y_axis);
-	circle->render(shader_program_id, modelViewMeridian, projection, colorMeridian, GL_LINE_LOOP);
-
-	glm::vec4 colorEarth(0.04f, 0.1f, 0.6f, 1.0f);
-	glm::vec4 colorAtmosphere(0.07, 0.2f, 0.7f, 0.6f);
-	glm::mat4 modelViewEarth =
-				camera *
-				glm::rotate(glm::mat4(1.0f), theta, z_axis) *
-				glm::rotate(glm::mat4(1.0f), phi, y_axis);
-	circle->render(shader_program_id, modelViewEarth, projection, colorEarth, GL_TRIANGLE_FAN);
-}
-
-glm::mat4 circleToOrbit
-		(float e, float a,
-		float inc, float LAN, float AP)
-{
-	float b = a * sqrt(1 - e*e); /* Semi minor axis */
-	float f = a * e; /* Distance from the center to the focus. */
-	glm::vec3 scale(b, a, 1.0f); /* Scale the circle */
-	glm::vec3 translation(0.0f, f, 0.0f); /* Move up by one focus distance. */
-
-	glm::vec3 x_axis(1.0f, 0.0f, 0.0f);
-	glm::vec3 z_axis(0.0f, 0.0f, 1.0f);
-
-	glm::mat4 model =
-		glm::rotate(glm::mat4(1.0f), LAN, z_axis) *
-		glm::rotate(glm::mat4(1.0f), inc, x_axis) *
-		glm::rotate(glm::mat4(1.0f), AP, z_axis) *
-		glm::translate(glm::mat4(1.0f), translation) *
-		glm::scale(glm::mat4(1.0f), scale);
-	return model;
+	renderOrbit
+		(object->get_KeplerianElements(),
+		*circle, shader_program_id,
+		camera, projection, colorOrbit);
+	renderObject
+		(object->get_r(),
+		 0.1f, *circle,
+		 shader_program_id,
+		 camera, projection, colorObject);
+	renderEarth(shader_program_id, camera, projection, *circle, phi, theta);
 }
 
 void render_shutdown()

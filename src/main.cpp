@@ -4,6 +4,7 @@
 void frame_init();
 int frame
 	(float dt,
+	SDL_Event evt,
 	const Uint8* kbd,
 	float dx, float dy, Uint32 mouseb);
 void frame_shutdown();
@@ -80,7 +81,7 @@ int main(int argc, char**argv)
 		mousex_old = mousex;
 		mousey_old = mousey;
 
-		done = frame(dt, kbd, dx, dy, mouseb);
+		done = frame(dt, evt, kbd, dx, dy, mouseb);
 		render();
 		SDL_GL_SwapWindow(wnd);
 		/* sleep */

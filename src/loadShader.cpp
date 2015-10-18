@@ -58,7 +58,7 @@ GLuint loadProgram(GLuint vertexShader, GLuint fragmentShader)
 		infoLog = new char[infoLogLength + 1];
 		infoLog[infoLogLength] = '\0';
 		glGetProgramInfoLog(programId, infoLogLength, NULL, infoLog);
-		std::cout << infoLog << std::endl;
+		std::cout << infoLog;
 		delete infoLog;
 		infoLog = NULL;
 	}

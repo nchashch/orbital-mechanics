@@ -27,12 +27,12 @@ float air_density(float R) {
 	float epsilon = 1.0e-7;
 	if(fabs(Lb_) < epsilon)
 	{
-		return pb_ * exp((-g0 * M_air * (h - hb_)) / (R_star * Tb_));
+		return pb_ * exp((-g0 * M_air * (h - hb_)) / (R_gas * Tb_));
 	}
 	else
 	{
 		float base = 1 - Lb_ * (h - hb_) / Tb_;
-		float degree = 1 + (g0 * M_air) / (R_star * Lb_);
+		float degree = 1 + (g0 * M_air) / (R_gas * Lb_);
 		return pb_ * pow(base, degree);
 	}
 }

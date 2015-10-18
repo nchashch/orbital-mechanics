@@ -3,15 +3,17 @@
 
 #include <glm.hpp>
 #include <string>
+#include "Circle.h"
 
-struct OrbitalElements {
-	float ecc;
-	float a;
-	float inc;
-	float LAN;
-	float AP;
-	float M0;
+struct KeplerianElements {
+	float e; /* eccentricity */
+	float a; /* semi major axis */
+	float inc; /* Inclination */
+	float LAN; /* Longitude of Ascending Node */
+	float AP; /* Argument of Periapsis */
+	float M0; /* Mean anomaly at epoch */
 	float epoch;
+	float t;
 };
 
 class Object {
@@ -21,32 +23,40 @@ public:
 		glm::vec3 r,
 		glm::vec3 v,
 		glm::vec3 thrust,
-		float dt, float m, float Cd, float A);
+		float epoch, float m, float Cd, float A);
 	Object(const Object &obj);
 	Object operator= (const Object &obj);
 	~Object();
-	void tick(float elapsed_time);
+	void tick(float dt);
 	void set_thrust(glm::vec3 thrust);
-	void set_dt(float dt);
 	glm::vec3 get_r() const;
 	glm::vec3 get_v() const;
 	glm::vec3 get_thrust() const;
-	float get_dt() const;
 	float get_m() const;
 	float get_Cd() const;
 	float get_A() const;
+	KeplerianElements get_KeplerianElements() const;
+	void recompute_ke(float epoch);
+	void deactivate(float epoch);
+	void activate();
 private:
-	void compute_oe(float epoch);
-	float dt;
-
-	glm::vec3 (*force)(const Object &obj);
+	glm::vec3 force();
 	std::string name;
-	OrbitalElements oe;
+	KeplerianElements ke;
 	glm::vec3 r;
 	glm::vec3 v;
 	glm::vec3 thrust;
 	float m;
 	float Cd;
 	float A;
+	bool active;
 };
+
+void renderOrbit
+		(const KeplerianElements &ke, const Circle &circle,
+		GLuint program, glm::mat4 camera, glm::mat4 projection, glm::vec4 color);
+
+void renderObject
+		(const glm::vec3 &r, float scale, const Circle &circle,
+		GLuint program, glm::mat4 camera, glm::mat4 projection, glm::vec4 color);
 #endif

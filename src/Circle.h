@@ -12,7 +12,7 @@ public:
 	void render
 		(GLuint program,
 		glm::mat4 modelView, glm::mat4 perspective,
-		glm::vec4 color, GLenum mode);
+		glm::vec4 color, GLenum mode) const;
 private:
 	int vertexNumber;
 	GLuint buffer;

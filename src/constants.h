@@ -8,6 +8,6 @@ const float G = 6.67408e-11; /* Gravitational constant */
 const float mu_earth = M_earth * G; /* Standard gravitational parameter. */
 const float M_air = 0.0289644; /* Air molar mass */
 const float g0 = mu_earth/(R_earth * R_earth); /* Gravitational acceleration */
-const float R_star = 8.31432; /* Universal gas constant for air */
+const float R_gas = 8.31432; /* Universal gas constant for air */
 
 #endif
