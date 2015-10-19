@@ -17,7 +17,7 @@ glm::vec3 up;
 
 float zoom_rate = 40.0f;
 float drag_rate = M_PI;
-float R_min = 5.0f;
+float R_min = 10.0f;
 float R_max = 100.0f;
 float R = R_min;
 const double far = 300.0f;
@@ -31,8 +31,8 @@ void frame_init()
 {
 	object = new Object
 			("Test object",
-			glm::vec3(0.0f, 2.0f, 1.0f) * R_earth,
-			glm::vec3(7.1e3f, 0.0f, 2.0e3f),
+			glm::vec3(0.6f, 1.2f, 1.0f) * R_earth,
+			glm::vec3(-5.0e3f, 0.0f, 7.0e3f),
 			glm::vec3(0.0f, 0.0f, 0.0f),
 			t, 1.0f, 1.0f, 1.0f);
 	KeplerianElements ke = object->get_KeplerianElements();
@@ -136,7 +136,7 @@ void render()
 		camera, projection, colorOrbit);
 	renderObject
 		(object->get_r(),
-		 0.1f, *circle,
+		 0.05f, *circle,
 		 shader_program_id,
 		 camera, projection, colorObject);
 	renderEarth(shader_program_id, camera, projection, *circle, phi, theta);

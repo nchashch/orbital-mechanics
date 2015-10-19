@@ -21,7 +21,7 @@ void renderEarth
 
 	glm::mat4 modelViewMeridian =
 				camera *
-				glm::rotate(glm::mat4(1.0f), angle, y_axis);
+				glm::rotate(glm::mat4(1.0f), angle, x_axis);
 	circle.render(program, modelViewMeridian, projection, colorMeridian, GL_LINE_LOOP);
 
 	glm::vec4 colorEarth(0.04f, 0.1f, 0.6f, 1.0f);

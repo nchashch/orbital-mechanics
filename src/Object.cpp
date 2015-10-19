@@ -105,8 +105,7 @@ void Object::recompute_ke(float epoch)
 	glm::vec3 n = glm::cross(glm::vec3(0.0f, 0.0f, 1.0f), h);
 
 	float trueAnomaly;
-	float dot_r_v = glm::dot(r,v);
-	if(dot_r_v >= 0.0f)
+	if(glm::dot(r,v) >= 0.0f)
 	{
 		trueAnomaly = acos(glm::dot(e,r)/(glm::length(e)*glm::length(r)));
 	}
@@ -130,11 +129,11 @@ void Object::recompute_ke(float epoch)
 
 	if(e.z >= 0)
 	{
-		ke.AP = glm::dot(n,e)/(glm::length(n)*glm::length(e));
+		ke.AP = acos(glm::dot(n,e)/(glm::length(n)*glm::length(e)));
 	}
 	else
 	{
-		ke.AP = 2*M_PI - glm::dot(n,e)/(glm::length(n)*glm::length(e));
+		ke.AP = 2*M_PI - acos(glm::dot(n,e)/(glm::length(n)*glm::length(e)));
 	}
 	ke.M0 = E - ke.e * sin(E);
 	ke.a = 1/(2/glm::length(r) - glm::dot(v,v)/mu_earth);
@@ -165,7 +164,7 @@ void renderOrbit
 		(const KeplerianElements &ke, const Circle &circle,
 		GLuint program, glm::mat4 camera, glm::mat4 projection, glm::vec4 color)
 {
-	glm::mat4 orbitTransform = circleToOrbit(ke.e, ke.a, ke.inc, ke.LAN, ke.AP);
+	glm::mat4 orbitTransform = circleToOrbit(ke.e, ke.a/R_earth, ke.inc, ke.LAN, ke.AP);
 	glm::mat4 modelViewOrbit = camera * orbitTransform;
 	circle.render(program, modelViewOrbit, projection, color, GL_LINE_LOOP);
 }
@@ -181,19 +180,18 @@ void renderObject
 			glm::scale(glm::mat4(1.0f), scale_vec);
 	circle.render(program, modelView, projection, color, GL_LINE_LOOP);
 }
-	
 
 glm::mat4 circleToOrbit
 		(float e, float a,
 		float inc, float LAN, float AP)
 {
-	a /= R_earth;
 	float b = a * sqrt(1 - e*e); /* Semi minor axis */
 	float f = a * e; /* Distance from the center to the focus. */
-	glm::vec3 scale(b, a, 1.0f); /* Scale the circle */
-	glm::vec3 translation(0.0f, f, 0.0f); /* Move down by one focus distance. */
+	glm::vec3 scale(a, b, 1.0f); /* Scale the circle */
+	glm::vec3 translation(-f, 0.0f, 0.0f); /* Move up by one focus distance. */
 
 	glm::vec3 x_axis(1.0f, 0.0f, 0.0f);
+	glm::vec3 y_axis(0.0f, 1.0f, 0.0f);
 	glm::vec3 z_axis(0.0f, 0.0f, 1.0f);
 	glm::mat4 model =
 		glm::rotate(glm::mat4(1.0f), LAN, z_axis) * 

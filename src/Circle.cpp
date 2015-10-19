@@ -4,12 +4,12 @@
 
 void Circle::render
 		(GLuint program,
-		glm::mat4 modelView, glm::mat4 perspective,
+		glm::mat4 modelView, glm::mat4 projection,
 		glm::vec4 color, GLenum mode) const
 {
 	glUseProgram(program);
 	glUniformMatrix4fv(0, 1, GL_FALSE, &modelView[0][0]);
-	glUniformMatrix4fv(1, 1, GL_FALSE, &perspective[0][0]);
+	glUniformMatrix4fv(1, 1, GL_FALSE, &projection[0][0]);
 	glUniform4fv(2, 1, &color[0]);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	glDrawArrays(mode, 0, vertexNumber);

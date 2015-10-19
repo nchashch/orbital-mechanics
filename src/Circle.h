@@ -11,7 +11,7 @@ public:
 	~Circle();
 	void render
 		(GLuint program,
-		glm::mat4 modelView, glm::mat4 perspective,
+		glm::mat4 modelView, glm::mat4 projection,
 		glm::vec4 color, GLenum mode) const;
 private:
 	int vertexNumber;
