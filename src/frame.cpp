@@ -18,24 +18,24 @@ const double near = 0.1f;
 float theta = 0.0f;
 float phi = M_PI/2;
 
-Object *object;
-float t = 0.0f;
+Object *object1;
+Object *object2;
 
 void frame_init()
 {
-	object = new Object
-			("Test object",
+	object1 = new Object
+			("Test object1",
 			glm::vec3(0.0f, 1.1f, 0.0f) * R_earth,
-			glm::vec3(10.0e3f, 1.0f, 0.0f),
+			glm::vec3(10.0e3f, 0.0f, 1.0e-12f), /* v.z shouldn't be zero */
 			glm::vec3(0.0f, 0.0f, 0.0f),
-			t, 1.0f, 1.0f, 1.0f);
+			9.0f, 1.0f, 1.0f, 1.0f);
 
-	KeplerianElements ke = object->get_KeplerianElements();
-	std::cout << "e = " << ke.e << std::endl;
-	std::cout << "a = " << ke.a << std::endl;
-	std::cout << "inc = " << ke.inc << std::endl;
-	std::cout << "LAN = " << ke.LAN << std::endl;
-	std::cout << "AP = " << ke.AP << std::endl;
+	object2 = new Object
+			("Test object2",
+			glm::vec3(0.5f, -2.1f, 0.4f) * R_earth,
+			glm::vec3(-2.0e3f, 0.0f, 8.0e3f),
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			0.0f, 1.0f, 1.0f, 1.0f);
 }
 
 int frame
@@ -44,9 +44,9 @@ int frame
 	const Uint8* kbd,
 	float dx, float dy, Uint32 mouseb)
 {
-	t += dt;
-	object->tick(dt);
-	object->recompute_ke(t);
+	object1->tick(dt);
+	object2->tick(dt);
+
 	if(mouseb & SDL_BUTTON(SDL_BUTTON_LEFT))
 	{
 		theta -= dx * drag_rate;
@@ -70,6 +70,18 @@ int frame
 		R += zoom_rate * dt;
 	}
 
+	if(kbd[SDL_SCANCODE_A])
+	{
+		object1->activate();
+		object2->activate();
+
+	}
+	if(kbd[SDL_SCANCODE_D])
+	{
+		object1->deactivate();
+		object2->deactivate();
+	}
+
 	if(kbd[SDL_SCANCODE_ESCAPE])
 	{
 		return 1;
@@ -80,7 +92,8 @@ int frame
 
 void frame_shutdown()
 {
-	delete object;
+	delete object1;
+	delete object2;
 }
 
 Renderer *renderer;
@@ -100,7 +113,8 @@ void render()
 {
 	renderer->frameTick(theta, phi, R);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	renderer->render(*object);
+	renderer->render(*object1);
+	renderer->render(*object2);
 	renderer->renderEarth();
 }
 

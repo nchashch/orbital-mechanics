@@ -16,7 +16,7 @@ public:
 	~Renderer();
 	void frameTick(float theta, float phi, float R);
 	void clear();
-	void render(const Object &obj);
+	void render(Object object);
 	void renderEarth();
 private:
 	Circle circle;

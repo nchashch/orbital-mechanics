@@ -35,11 +35,14 @@ public:
 	float get_m() const;
 	float get_Cd() const;
 	float get_A() const;
-	KeplerianElements get_KeplerianElements() const;
-	void recompute_ke(float epoch);
-	void deactivate(float epoch);
+	bool isActive() const;
+	bool isCrashed() const;
+	KeplerianElements get_ke() const;
+	void deactivate();
 	void activate();
 private:
+	void recompute_ke(float epoch);
+	void recompute_sv();
 	glm::vec3 force();
 	std::string name;
 	KeplerianElements ke;
@@ -50,13 +53,6 @@ private:
 	float Cd;
 	float A;
 	bool active;
+	bool crashed;
 };
-
-void renderOrbit
-		(const KeplerianElements &ke, const Circle &circle,
-		GLuint program, glm::mat4 camera, glm::mat4 projection, glm::vec4 color);
-
-void renderObject
-		(const glm::vec3 &r, float scale, const Circle &circle,
-		GLuint program, glm::mat4 camera, glm::mat4 projection, glm::vec4 color);
 #endif

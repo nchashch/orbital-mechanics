@@ -51,19 +51,6 @@ void Renderer::clear()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Renderer::render(const Object &object)
-{
-	renderOrbit
-		(object.get_KeplerianElements(),
-		circle, program,
-		camera, projection, colorOrbit);
-	renderObject
-		(object.get_r(),
-		 0.05f, circle,
-		 program,
-		 camera, projection, colorObject);
-}
-
 void renderObject
 		(const glm::vec3 &r, float scale, const Circle &circle,
 		GLuint program, glm::mat4 camera, glm::mat4 projection, glm::vec4 color);
@@ -71,6 +58,26 @@ void renderObject
 void renderOrbit
 		(const KeplerianElements &ke, const Circle &circle,
 		GLuint program, glm::mat4 camera, glm::mat4 projection, glm::vec4 color);
+
+void Renderer::render(Object object)
+{
+	if(object.isActive())
+	{
+		renderObject
+			(object.get_r(),
+			 0.05f, circle,
+			 program,
+			 camera, projection, colorObject);
+	}
+	if(!object.isCrashed())
+	{
+		object.deactivate();
+		renderOrbit
+			(object.get_ke(),
+			circle, program,
+			camera, projection, colorOrbit);
+	}
+}
 
 void Renderer::renderEarth()
 {
@@ -143,4 +150,3 @@ glm::mat4 circleToOrbit
 		glm::scale(glm::mat4(1.0f), scale);
 	return model;
 }
-

@@ -1,3 +1,4 @@
+#define GLM_SWIZZLE
 #include "Object.h"
 #include "constants.h"
 #include "forces.h"
@@ -18,19 +19,16 @@ Object::Object
 		m(m),
 		Cd(Cd),
 		A(A),
-		active(true)
+		active(true),
+		crashed(false)
 {
 	recompute_ke(epoch);
 }
 
 Object::Object(const Object &obj)
 {
-	*this = obj;
-}
-
-Object Object::operator= (const Object &obj)
-{
 	this->name = obj.name;
+	this->ke = obj.ke;
 	this->r = obj.r;
 	this->v = obj.v;
 	this->thrust = obj.thrust;
@@ -38,24 +36,57 @@ Object Object::operator= (const Object &obj)
 	this->Cd = obj.Cd;
 	this->A = obj.A;
 	this->active = obj.active;
+	this->crashed = obj.crashed;
+}
+
+Object Object::operator= (const Object &obj)
+{
+	this->name = obj.name;
+	this->ke = obj.ke;
+	this->r = obj.r;
+	this->v = obj.v;
+	this->thrust = obj.thrust;
+	this->m = obj.m;
+	this->Cd = obj.Cd;
+	this->A = obj.A;
+	this->active = obj.active;
+	this->crashed = obj.crashed;
 	return *this;
 }
 
 Object::~Object()
-
 {
 }
 
 void Object::tick(float dt)
 {
-	float m = get_m();
-	glm::vec3 acc = force() / m;
+	ke.t += dt;
+	if(active && !crashed)
+	{
+		float m = get_m();
+		const float fixed_dt = 1.0f;
+		if(dt < fixed_dt)
+		{
+			glm::vec3 acc = force() / m;
 
-	glm::vec3 dv = acc * dt;
-	glm::vec3 dr = get_v() * dt;
+			glm::vec3 dv = acc * dt;
+			glm::vec3 dr = get_v() * dt;
 
-	v += dv;
-	r += dr;
+			v += dv;
+			r += dr;
+
+		}
+		else
+		{
+			/* No pertrubations. */
+			recompute_sv();
+		}
+
+		if(glm::length(r) < R_earth)
+		{
+			crashed = true;
+		}
+	}
 }
 
 void Object::set_thrust(glm::vec3 thrust)
@@ -93,19 +124,24 @@ float Object::get_A() const
 	return A;
 }
 
-KeplerianElements Object::get_KeplerianElements() const
+bool Object::isActive() const
+{
+	return active;
+}
+
+bool Object::isCrashed() const
+{
+	return crashed;
+}
+
+KeplerianElements Object::get_ke() const
 {
 	return ke;
 }
 
 void Object::recompute_ke(float epoch)
 {
-	const float epsilon = 1.0e-9f;
-	if(v.z < epsilon)
-	{
-		v.z = epsilon;
-	}
-	glm::vec3 h = glm::cross(r, v); /* Specific angular momentum. */
+	glm::vec3 h = glm::cross(r, v);
 	glm::vec3 e = glm::cross(v, h)/mu_earth - glm::normalize(r);
 	glm::vec3 n = glm::cross(glm::vec3(0.0f, 0.0f, 1.0f), h);
 
@@ -144,16 +180,60 @@ void Object::recompute_ke(float epoch)
 	ke.M0 = E - ke.e * sin(E);
 	ke.a = 1/(2/glm::length(r) - glm::dot(v,v)/mu_earth);
 	ke.epoch = epoch;
+	ke.t = epoch;
 }
 
-void Object::deactivate(float epoch)
+float newtonRaphson(float M, float e, int iterations);
+void Object::recompute_sv()
 {
-	recompute_ke(epoch);
-	active = false;
+	float n = sqrt(mu_earth/pow(ke.a, 3));
+	float dt = (ke.t - ke.epoch);
+	float M = ke.M0 + dt * n;
+	const int iterations = 10;
+	float E = newtonRaphson(M, ke.e, iterations);
+	float trueAnomaly = 2*atan2(sqrt(1+ke.e)*sin(E/2), sqrt(1-ke.e)*cos(E/2));
+	float R = ke.a*(1-ke.e*cos(E));
+	glm::vec4 r = R * glm::vec4(cos(trueAnomaly), sin(trueAnomaly), 0, 1);
+	glm::vec4 v = ((float)sqrt(mu_earth*ke.a)/R) * glm::vec4(-sin(E), sqrt(1-pow(ke.e,2))*cos(E), 0, 0);
+	glm::vec3 x_axis(1.0f, 0.0f, 0.0f);
+	glm::vec3 y_axis(0.0f, 1.0f, 0.0f);
+	glm::vec3 z_axis(0.0f, 0.0f, 1.0f);
+	glm::mat4 ECI_Transform =
+				glm::rotate(glm::mat4(1.0f), ke.LAN, z_axis) *
+				glm::rotate(glm::mat4(1.0f), ke.inc, x_axis) *
+				glm::rotate(glm::mat4(1.0f), ke.AP, z_axis);
+	r = ECI_Transform * r;
+	v = ECI_Transform * v;
+	this->r = r.xyz();
+	this->v = v.xyz();
+}
+
+float newtonRaphson(float M, float e, int iterations)
+{
+	float E = M;
+	for(int i = 0; i < iterations; i++)
+	{
+		E = E - (E - e*sin(E) - M)/(1 - e*cos(E));
+	}
+	return E;
+}
+
+void Object::deactivate()
+{
+	if(active)
+	{
+		recompute_ke(ke.t);
+		active = false;
+	}
 }
 
 void Object::activate()
 {
+	if(!active)
+	{
+		recompute_sv();
+		active = true;
+	}
 }
 
 glm::vec3 Object::force()
