@@ -1,7 +1,10 @@
-#include "SDL.h"
+#include <vector>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <string>
 #include <glm.hpp>
+#include "SDL.h"
 #define GL_GLEXT_PROTOTYPES
 #include <glcorearb.h>
 #include "Object.h"
@@ -18,24 +21,37 @@ const double near = 0.1f;
 float theta = 0.0f;
 float phi = M_PI/2;
 
-Object *object1;
-Object *object2;
+std::vector<Object> objects;
+
+/*
+name   e   a     inc  LAN AP  trueAnomaly m   Cd  A
+Object 0.4 2.0e6 1.57 1.4 4.3 2.1         1.0 1.0 1.0
+*/
 
 void frame_init()
 {
-	object1 = new Object
-			("Test object1",
-			glm::vec3(0.0f, 1.1f, 0.0f) * R_earth,
-			glm::vec3(10.0e3f, 0.0f, 1.0e-12f), /* v.z shouldn't be zero */
-			glm::vec3(0.0f, 0.0f, 0.0f),
-			9.0f, 1.0f, 1.0f, 1.0f);
-
-	object2 = new Object
-			("Test object2",
-			glm::vec3(0.5f, -2.1f, 0.4f) * R_earth,
-			glm::vec3(-2.0e3f, 0.0f, 8.0e3f),
-			glm::vec3(0.0f, 0.0f, 0.0f),
-			0.0f, 1.0f, 1.0f, 1.0f);
+	const char* objects_filename = "objects";
+	std::ifstream obj_ifs(objects_filename);
+	if(obj_ifs.is_open())
+	{
+		std::string line;
+ 		while(std::getline(obj_ifs, line))
+		{
+			std::istringstream iss(line);
+			std::string name;
+			KeplerianElements ke;
+			float m, Cd, A;
+			iss >> name >> ke.e >> ke.a >> ke.inc >> ke.LAN >> ke.AP;
+			float trueAnomaly;
+			iss >> trueAnomaly;
+			float E = 2*atan(tan(trueAnomaly/2)/sqrt((1+ke.e)/(1-ke.e)));
+			ke.M0 = E - ke.e * sin(E);
+			ke.epoch = 0.0f;
+			ke.t = 0.0f;
+			iss >> m >> Cd >> A;
+			objects.push_back(Object(name, ke, m, Cd, A));
+		}
+	}
 }
 
 int frame
@@ -44,8 +60,11 @@ int frame
 	const Uint8* kbd,
 	float dx, float dy, Uint32 mouseb)
 {
-	object1->tick(dt);
-	object2->tick(dt);
+	const float time_warp = 1000;
+	for(std::vector<Object>::iterator i = objects.begin(); i != objects.end(); ++i)
+	{
+		i->tick(dt*time_warp);
+	}
 
 	if(mouseb & SDL_BUTTON(SDL_BUTTON_LEFT))
 	{
@@ -72,14 +91,17 @@ int frame
 
 	if(kbd[SDL_SCANCODE_A])
 	{
-		object1->activate();
-		object2->activate();
-
+		for(std::vector<Object>::iterator i = objects.begin(); i != objects.end(); ++i)
+		{
+			i->activate();
+		}
 	}
 	if(kbd[SDL_SCANCODE_D])
 	{
-		object1->deactivate();
-		object2->deactivate();
+		for(std::vector<Object>::iterator i = objects.begin(); i != objects.end(); ++i)
+		{
+			i->deactivate();
+		}
 	}
 
 	if(kbd[SDL_SCANCODE_ESCAPE])
@@ -92,20 +114,19 @@ int frame
 
 void frame_shutdown()
 {
-	delete object1;
-	delete object2;
 }
 
 Renderer *renderer;
 const char * vertex_shader_filename = "vertex_shader.vert";
 const char * fragment_shader_filename = "fragment_shader.frag";
 
-void render_init()
+void render_init(int wnd_w, int wnd_h)
 {
+	float aspect = (float)wnd_w / (float)wnd_h;
 	renderer = new Renderer
 			(std::string(vertex_shader_filename),
 			std::string(fragment_shader_filename),
-			M_PI/4, 1366.0/768.0,
+			M_PI/4, aspect,
 			near, far);
 }
 
@@ -113,8 +134,10 @@ void render()
 {
 	renderer->frameTick(theta, phi, R);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	renderer->render(*object1);
-	renderer->render(*object2);
+	for(std::vector<Object>::iterator i = objects.begin(); i != objects.end(); ++i)
+	{
+		renderer->render(*i);
+	}
 	renderer->renderEarth();
 }
 

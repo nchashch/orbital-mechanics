@@ -8,7 +8,7 @@ int frame
 	const Uint8* kbd,
 	float dx, float dy, Uint32 mouseb);
 void frame_shutdown();
-void render_init();
+void render_init(int wnd_w, int wnd_h);
 void render();
 void render_shutdown();
 
@@ -23,7 +23,7 @@ int main(int argc, char**argv)
 			("",
 			SDL_WINDOWPOS_UNDEFINED,
 			SDL_WINDOWPOS_UNDEFINED,
-			1366, 768,
+			1680, 1050,
 			SDL_WINDOW_OPENGL);
 	if(wnd == NULL)
 	{
@@ -44,7 +44,9 @@ int main(int argc, char**argv)
 	float t=0.0;
 	float dt=0.0;
 	frame_init();
-	render_init();
+	int wnd_w, wnd_h;
+	SDL_GetWindowSize(wnd, &wnd_w, &wnd_h);
+	render_init(wnd_w, wnd_h);
 
 	float mousex_old;
 	float mousey_old;

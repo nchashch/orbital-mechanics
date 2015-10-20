@@ -24,6 +24,10 @@ public:
 		glm::vec3 v,
 		glm::vec3 thrust,
 		float epoch, float m, float Cd, float A);
+	Object
+		(std::string name,
+		KeplerianElements ke,
+		float m, float Cd, float A);
 	Object(const Object &obj);
 	Object operator= (const Object &obj);
 	~Object();

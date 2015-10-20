@@ -25,6 +25,21 @@ Object::Object
 	recompute_ke(epoch);
 }
 
+Object::Object
+	(std::string name,
+	KeplerianElements ke,
+	float m, float Cd, float A) :
+		name(name),
+		ke(ke),
+		m(m),
+		Cd(Cd),
+		A(A),
+		active(true),
+		crashed(false)
+{
+	recompute_sv();
+}
+
 Object::Object(const Object &obj)
 {
 	this->name = obj.name;
@@ -60,7 +75,8 @@ Object::~Object()
 
 void Object::tick(float dt)
 {
-	ke.t += dt;
+	if(!crashed)
+		ke.t += dt;
 	if(active && !crashed)
 	{
 		float m = get_m();
@@ -222,7 +238,7 @@ void Object::deactivate()
 {
 	if(active)
 	{
-		recompute_ke(ke.t);
+		recompute_ke(ke.epoch + ke.t);
 		active = false;
 	}
 }
