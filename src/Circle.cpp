@@ -8,11 +8,14 @@ void Circle::render
 		glm::vec4 color, GLenum mode) const
 {
 	glUseProgram(program);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	glEnableVertexAttribArray(0);
 	glUniformMatrix4fv(0, 1, GL_FALSE, &modelView[0][0]);
 	glUniformMatrix4fv(1, 1, GL_FALSE, &projection[0][0]);
 	glUniform4fv(2, 1, &color[0]);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	glDrawArrays(mode, 0, vertexNumber);
+	glDisableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glUseProgram(0);
 }
@@ -34,8 +37,6 @@ Circle::Circle(int vertexNumber) :
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	glBufferData(GL_ARRAY_BUFFER, vertexNumber * sizeof(float) * 3, vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	delete[] vertices;
 }

@@ -28,13 +28,12 @@ glm::vec3 thrust_force(const Object &obj)
 glm::vec3 drag_force(const Object &obj)
 {
 	glm::vec3 r = obj.get_r();
-	float R = glm::length(r);
 	glm::vec3 v = obj.get_v();
+	float R = glm::length(r);
 	float Cd = obj.get_Cd();
 	float A = obj.get_A();
 	float p = air_density(R);
 	float scalar_part = -0.5 * Cd * A * p * glm::dot(v,v);
-
 	glm::vec3 vector_part = glm::normalize(v);
 	glm::vec3 F = vector_part * scalar_part;
 	return F;

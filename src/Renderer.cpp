@@ -6,10 +6,14 @@
 Renderer::Renderer
 		(std::string vertexShaderFilename,
 		std::string fragmentShaderFilename,
+		std::string objectFilename,
+		std::string earthFilename,
 	 	double FOV, double aspect,
 	 	double near, double far) :
+		object(objectFilename.c_str()),
 		circle(64),
-		colorObject(1.0f, 0.3f, 0.3f, 1.0f),
+		earth(earthFilename.c_str()),
+		colorObject(1.0f, 1.0f, 1.0f, 1.0f),
 		colorOrbit(1.0f, 1.0f, 1.0f, 1.0f),
 		camera(1.0f)
 {
@@ -52,7 +56,7 @@ void Renderer::clear()
 }
 
 void renderObject
-		(const glm::vec3 &r, float scale, const Circle &circle,
+		(const glm::vec3 &r, float scale, const Mesh &object,
 		GLuint program, glm::mat4 camera, glm::mat4 projection, glm::vec4 color);
 
 void renderOrbit
@@ -65,7 +69,7 @@ void Renderer::render(Object object)
 	{
 		renderObject
 			(object.get_r(),
-			 0.05f, circle,
+			 0.02f, this->object,
 			 program,
 			 camera, projection, colorObject);
 	}
@@ -81,6 +85,7 @@ void Renderer::render(Object object)
 
 void Renderer::renderEarth()
 {
+	/*
 	glm::vec4 colorEquator(1.0f, 1.0f, 1.0f, 1.0f);
 	glm::vec4 colorMeridian(1.0f, 1.0f, 1.0f, 1.0f);
 	glm::mat4 modelViewEquator = camera;
@@ -95,18 +100,15 @@ void Renderer::renderEarth()
 				camera *
 				glm::rotate(glm::mat4(1.0f), angle, x_axis);
 	circle.render(program, modelViewMeridian, projection, colorMeridian, GL_LINE_LOOP);
-
-	glm::vec4 colorEarth(0.04f, 0.1f, 0.6f, 1.0f);
-	glm::vec4 colorAtmosphere(0.07, 0.2f, 0.7f, 0.6f);
+	*/
+	glm::vec4 colorEarth(0.4f, 0.4f, 0.4f, 1.0f);
 	glm::mat4 modelViewEarth =
-				camera *
-				glm::rotate(glm::mat4(1.0f), theta, z_axis) *
-				glm::rotate(glm::mat4(1.0f), phi, y_axis);
-	circle.render(program, modelViewEarth, projection, colorEarth, GL_TRIANGLE_FAN);
+				camera;
+	earth.render(program, modelViewEarth, projection, colorEarth, GL_TRIANGLES);
 }
 
 void renderObject
-		(const glm::vec3 &r, float scale, const Circle &circle,
+		(const glm::vec3 &r, float scale, const Mesh &object,
 		GLuint program, glm::mat4 camera, glm::mat4 projection, glm::vec4 color)
 {
 	glm::vec3 scale_vec(scale, scale, scale);
@@ -114,7 +116,7 @@ void renderObject
 			camera *
 			glm::translate(glm::mat4(1.0f), r/R_earth) *
 			glm::scale(glm::mat4(1.0f), scale_vec);
-	circle.render(program, modelView, projection, color, GL_LINE_LOOP);
+	object.render(program, modelView, projection, color, GL_TRIANGLES);
 }
 
 glm::mat4 circleToOrbit

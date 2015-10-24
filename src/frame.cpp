@@ -8,12 +8,13 @@
 #define GL_GLEXT_PROTOTYPES
 #include <glcorearb.h>
 #include "Object.h"
+#include "Mesh.h"
 #include "Renderer.h"
 #include "constants.h"
 
 float zoom_rate = 40.0f;
 float drag_rate = M_PI;
-float R_min = 10.0f;
+float R_min = 2.0f;
 float R_max = 100.0f;
 float R = R_min;
 const double far = 300.0f;
@@ -60,7 +61,7 @@ int frame
 	const Uint8* kbd,
 	float dx, float dy, Uint32 mouseb)
 {
-	const float time_warp = 1000;
+	const float time_warp = 100;
 	for(std::vector<Object>::iterator i = objects.begin(); i != objects.end(); ++i)
 	{
 		i->tick(dt*time_warp);
@@ -126,6 +127,8 @@ void render_init(int wnd_w, int wnd_h)
 	renderer = new Renderer
 			(std::string(vertex_shader_filename),
 			std::string(fragment_shader_filename),
+			std::string("object.obj"),
+			std::string("sphere.obj"),
 			M_PI/4, aspect,
 			near, far);
 }

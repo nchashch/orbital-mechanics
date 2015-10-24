@@ -4,6 +4,7 @@
 #include <glcorearb.h>
 #include <glm.hpp>
 #include "Circle.h"
+#include "Mesh.h"
 #include "Object.h"
 class Renderer
 {
@@ -11,6 +12,8 @@ public:
 	Renderer
 		(std::string vertexShaderFilename,
 		std::string fragmentShaderFilename,
+		std::string objectFilename,
+		std::string earthFilename,
 	 	double FOV, double aspect,
 	 	double near, double far);
 	~Renderer();
@@ -20,6 +23,8 @@ public:
 	void renderEarth();
 private:
 	Circle circle;
+	Mesh earth;
+	Mesh object;
 	glm::mat4 projection;
 	glm::mat4 camera;
 	glm::vec4 colorObject;
