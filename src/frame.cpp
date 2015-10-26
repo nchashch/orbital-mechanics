@@ -12,11 +12,12 @@
 #include "Renderer.h"
 #include "constants.h"
 
-float zoom_rate = 40.0f;
-float drag_rate = M_PI;
+float zoom_rate = 20.0f;
+float drag_rate = M_PI/2;
 float R_min = 2.0f;
 float R_max = 100.0f;
 float R = R_min;
+int time_warp = 0;
 const double far = 300.0f;
 const double near = 0.1f;
 float theta = 0.0f;
@@ -55,16 +56,19 @@ void frame_init()
 	}
 }
 
+const float delay = 0.1f;
+float timer = 0.0f;
+
 int frame
 	(float dt,
 	SDL_Event evt,
 	const Uint8* kbd,
 	float dx, float dy, Uint32 mouseb)
 {
-	const float time_warp = 100;
+	float real_tw = pow(10.0, time_warp);
 	for(std::vector<Object>::iterator i = objects.begin(); i != objects.end(); ++i)
 	{
-		i->tick(dt*time_warp);
+		i->tick(dt*real_tw);
 	}
 
 	if(mouseb & SDL_BUTTON(SDL_BUTTON_LEFT))
@@ -75,11 +79,24 @@ int frame
 		{
 			phi = 0.001f;
 		}
-		if(phi > M_PI / 2)
+		if(phi > M_PI)
 		{
-			phi = M_PI / 2 - 0.001f;
+			phi = M_PI - 0.001f;
 		}
 	}
+
+	if(kbd[SDL_SCANCODE_PERIOD] && timer > delay && time_warp < 3)
+	{
+		time_warp += 1;
+		timer = 0.0f;
+	}
+	if(kbd[SDL_SCANCODE_COMMA] && timer > delay && time_warp > 0)
+	{
+		time_warp -= 1;
+		timer = 0.0f;
+	}
+
+	timer += dt;
 
 	if(kbd[SDL_SCANCODE_UP] && R > R_min)
 	{

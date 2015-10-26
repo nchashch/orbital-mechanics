@@ -24,6 +24,7 @@ Renderer::Renderer
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 	glDepthFunc(GL_LESS);
 	glLineWidth(2.0f);
 }
@@ -67,15 +68,16 @@ void Renderer::render(Object object)
 {
 	if(object.isActive())
 	{
+		float scale = 0.02f * glm::length(object.get_r()) / R_earth;
 		renderObject
 			(object.get_r(),
-			 0.02f, this->object,
+			 scale, this->object,
 			 program,
 			 camera, projection, colorObject);
 	}
 	if(!object.isCrashed())
 	{
-		object.deactivate();
+		object.deactivate(); /* It is a copy */
 		renderOrbit
 			(object.get_ke(),
 			circle, program,
