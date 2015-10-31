@@ -238,7 +238,7 @@ void Object::deactivate()
 {
 	if(active)
 	{
-		recompute_ke(ke.epoch + ke.t);
+		recompute_ke(ke.t);
 		active = false;
 	}
 }
