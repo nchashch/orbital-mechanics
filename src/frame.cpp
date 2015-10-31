@@ -44,6 +44,7 @@ void frame_init()
 			KeplerianElements ke;
 			float m, Cd, A;
 			iss >> name >> ke.e >> ke.a >> ke.inc >> ke.LAN >> ke.AP;
+			ke.LOP = ke.LAN + ke.AP;
 			float trueAnomaly;
 			iss >> trueAnomaly;
 			float E = 2*atan(tan(trueAnomaly/2)/sqrt((1+ke.e)/(1-ke.e)));
