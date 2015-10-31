@@ -2,6 +2,7 @@
 #include "constants.h"
 #include "Renderer.h"
 #include "loadShader.h"
+#include <limits>
 
 Renderer::Renderer
 		(std::string vertexShaderFilename,
@@ -123,20 +124,20 @@ void renderObject
 
 glm::mat4 circleToOrbit
 		(float e, float a,
-		float inc, float LAN, float AP);
+		float inc, float LAN, float AP, float LOP);
 
 void renderOrbit
 		(const KeplerianElements &ke, const Circle &circle,
 		GLuint program, glm::mat4 camera, glm::mat4 projection, glm::vec4 color)
 {
-	glm::mat4 orbitTransform = circleToOrbit(ke.e, ke.a/R_earth, ke.inc, ke.LAN, ke.AP);
+	glm::mat4 orbitTransform = circleToOrbit(ke.e, ke.a/R_earth, ke.inc, ke.LAN, ke.AP, ke.LOP);
 	glm::mat4 modelViewOrbit = camera * orbitTransform;
 	circle.render(program, modelViewOrbit, projection, color, GL_LINE_LOOP);
 }
 
 glm::mat4 circleToOrbit
 		(float e, float a,
-		float inc, float LAN, float AP)
+		float inc, float LAN, float AP, float LOP)
 {
 	float b = a * sqrt(1 - e*e); /* Semi minor axis */
 	float f = a * e; /* Distance from the center to the focus. */
@@ -146,10 +147,22 @@ glm::mat4 circleToOrbit
 	glm::vec3 x_axis(1.0f, 0.0f, 0.0f);
 	glm::vec3 y_axis(0.0f, 1.0f, 0.0f);
 	glm::vec3 z_axis(0.0f, 0.0f, 1.0f);
+	glm::mat4 ECI_Transform(1.0f);
+	if(std::abs(inc) < epsilon)
+	{
+		ECI_Transform =
+			glm::rotate(glm::mat4(1.0f), LOP, z_axis) *
+			glm::rotate(glm::mat4(1.0f), inc, x_axis);
+	}
+	else
+	{
+		ECI_Transform =
+			glm::rotate(glm::mat4(1.0f), LAN, z_axis) *
+			glm::rotate(glm::mat4(1.0f), inc, x_axis) *
+			glm::rotate(glm::mat4(1.0f), AP, z_axis);
+	}
 	glm::mat4 model =
-		glm::rotate(glm::mat4(1.0f), LAN, z_axis) * 
-		glm::rotate(glm::mat4(1.0f), inc, x_axis) *
-		glm::rotate(glm::mat4(1.0f), AP, z_axis) *
+		ECI_Transform *
 		glm::translate(glm::mat4(1.0f), translation) *
 		glm::scale(glm::mat4(1.0f), scale);
 	return model;

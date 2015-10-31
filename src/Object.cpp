@@ -94,7 +94,6 @@ void Object::tick(float dt)
 		}
 		else
 		{
-			/* No pertrubations. */
 			recompute_sv();
 		}
 
@@ -193,6 +192,26 @@ void Object::recompute_ke(float epoch)
 		ke.AP = 2*M_PI - acos(glm::dot(n,e)/(glm::length(n)*glm::length(e)));
 	}
 
+
+	if(std::abs(ke.inc) < epsilon)
+	{
+		ke.LAN = 0.0f;
+		ke.AP = 0.0f;
+		if(std::abs(ke.e) < epsilon)
+		{
+			ke.LOP = 0.0f;
+		}
+		else
+		{
+			glm::vec3 y_axis(0.0f, 1.0f, 0.0f);
+			ke.LOP = glm::dot(y_axis, e)/ke.e;
+		}
+	}
+	else
+	{
+		ke.LOP = ke.AP + ke.LAN; 
+	}
+
 	ke.M0 = E - ke.e * sin(E);
 	ke.a = 1/(2/glm::length(r) - glm::dot(v,v)/mu_earth);
 	ke.epoch = epoch;
@@ -214,14 +233,34 @@ void Object::recompute_sv()
 	glm::vec3 x_axis(1.0f, 0.0f, 0.0f);
 	glm::vec3 y_axis(0.0f, 1.0f, 0.0f);
 	glm::vec3 z_axis(0.0f, 0.0f, 1.0f);
-	glm::mat4 ECI_Transform =
-				glm::rotate(glm::mat4(1.0f), ke.LAN, z_axis) *
-				glm::rotate(glm::mat4(1.0f), ke.inc, x_axis) *
-				glm::rotate(glm::mat4(1.0f), ke.AP, z_axis);
+	glm::mat4 ECI_Transform(1.0f);
+	if(std::abs(ke.inc) < epsilon)
+	{
+		if(std::abs(ke.e) > epsilon)
+		{
+			ECI_Transform =
+				glm::rotate(glm::mat4(1.0f), ke.LOP, z_axis);
+		}
+	}
+	else
+	{
+		ECI_Transform =
+			glm::rotate(glm::mat4(1.0f), ke.LAN, z_axis) *
+			glm::rotate(glm::mat4(1.0f), ke.inc, x_axis) *
+			glm::rotate(glm::mat4(1.0f), ke.AP, z_axis);
+	}
 	r = ECI_Transform * r;
 	v = ECI_Transform * v;
 	this->r = r.xyz();
 	this->v = v.xyz();
+	std::cout << ke.e << " "
+		  << ke.a << " "
+		  << ke.inc << " "
+		  << ke.LAN << " "
+		  << ke.AP << " "
+		  << ke.LOP << " "
+		  << ke.M0 << " "
+		  << std::endl;
 }
 
 float newtonRaphson(float M, float e, int iterations)
