@@ -253,6 +253,7 @@ void Object::recompute_sv()
 	v = ECI_Transform * v;
 	this->r = r.xyz();
 	this->v = v.xyz();
+	/*
 	std::cout << ke.e << " "
 		  << ke.a << " "
 		  << ke.inc << " "
@@ -261,6 +262,7 @@ void Object::recompute_sv()
 		  << ke.LOP << " "
 		  << ke.M0 << " "
 		  << std::endl;
+	*/
 }
 
 float newtonRaphson(float M, float e, int iterations)
