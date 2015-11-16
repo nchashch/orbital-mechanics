@@ -202,14 +202,14 @@ void Object::recompute_ke(float epoch)
 		}
 		else
 		{
-			glm::vec3 y_axis(0.0f, 1.0f, 0.0f);
+			glm::vec3 x_axis(1.0f, 0.0f, 0.0f);
 			if(e.z >= 0)
 			{
-				ke.LOP = acos(glm::dot(y_axis, e)/ke.e);
+				ke.LOP = acos(glm::dot(x_axis, e)/ke.e);
 			}
 			else
 			{
-				ke.LOP = 2*M_PI - acos(glm::dot(y_axis, e)/ke.e);
+				ke.LOP = 2*M_PI - acos(glm::dot(x_axis, e)/ke.e);
 			}
 		}
 	}
