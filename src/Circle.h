@@ -7,14 +7,14 @@
 class Circle
 {
 public:
-	Circle(int vertexNumber);
-	~Circle();
-	void render
-		(GLuint program,
-		glm::mat4 modelView, glm::mat4 projection,
-		glm::vec4 color, GLenum mode) const;
+    Circle(int vertexNumber);
+    ~Circle();
+    void render
+    (GLuint program,
+     glm::mat4 modelView, glm::mat4 projection,
+     glm::vec4 color, GLenum mode) const;
 private:
-	int vertexNumber;
-	GLuint buffer;
+    int vertexNumber;
+    GLuint buffer;
 };
 #endif

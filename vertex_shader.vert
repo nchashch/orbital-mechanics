@@ -11,6 +11,6 @@ out float intensity;
 uniform vec3 lightDirection = vec3(1.0, 0.0, 0.0);
 
 void main() {
-	gl_Position = projection * modelview * vec4(vertex, 1.0);
-	intensity = dot(lightDirection, normal)*0.6 + 0.1;
+    gl_Position = projection * modelview * vec4(vertex, 1.0);
+    intensity = dot(lightDirection, normal)*0.6 + 0.1;
 }

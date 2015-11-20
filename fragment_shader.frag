@@ -4,5 +4,5 @@ out vec4 color_output;
 in float intensity;
 
 void main(void) {
-	color_output = color * intensity;
+    color_output = color * intensity;
 }
