@@ -151,8 +151,7 @@ glm::mat4 circleToOrbit
 	if(std::abs(inc) < epsilon)
 	{
 		ECI_Transform =
-			glm::rotate(glm::mat4(1.0f), LP, z_axis) *
-			glm::rotate(glm::mat4(1.0f), inc, x_axis);
+			glm::rotate(glm::mat4(1.0f), LP, z_axis);
 	}
 	else
 	{
