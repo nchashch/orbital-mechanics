@@ -11,7 +11,7 @@ struct KeplerianElements {
 	float inc; /* Inclination */
 	float LAN; /* Longitude of Ascending Node */
 	float AP; /* Argument of Periapsis */
-	float LOP; /* Longitude of Periapsis */
+	float LP; /* Longitude of Periapsis */
 	float M0; /* Mean anomaly at epoch */
 	float epoch;
 	float t;

@@ -198,24 +198,24 @@ void Object::recompute_ke(float epoch)
 		ke.AP = 0.0f;
 		if(std::abs(ke.e) < epsilon)
 		{
-			ke.LOP = 0.0f;
+			ke.LP = 0.0f;
 		}
 		else
 		{
 			glm::vec3 x_axis(1.0f, 0.0f, 0.0f);
 			if(e.z >= 0)
 			{
-				ke.LOP = acos(glm::dot(x_axis, e)/ke.e);
+				ke.LP = acos(glm::dot(x_axis, e)/ke.e);
 			}
 			else
 			{
-				ke.LOP = 2*M_PI - acos(glm::dot(x_axis, e)/ke.e);
+				ke.LP = 2*M_PI - acos(glm::dot(x_axis, e)/ke.e);
 			}
 		}
 	}
 	else
 	{
-		ke.LOP = ke.AP + ke.LAN; 
+		ke.LP = ke.AP + ke.LAN; 
 	}
 
 	ke.M0 = E - ke.e * sin(E);
@@ -245,7 +245,7 @@ void Object::recompute_sv()
 		if(std::abs(ke.e) > epsilon)
 		{
 			ECI_Transform =
-				glm::rotate(glm::mat4(1.0f), ke.LOP, z_axis);
+				glm::rotate(glm::mat4(1.0f), ke.LP, z_axis);
 		}
 	}
 	else
@@ -265,7 +265,7 @@ void Object::recompute_sv()
 		  << ke.inc << " "
 		  << ke.LAN << " "
 		  << ke.AP << " "
-		  << ke.LOP << " "
+		  << ke.LP << " "
 		  << ke.M0 << " "
 		  << std::endl;
 	*/
