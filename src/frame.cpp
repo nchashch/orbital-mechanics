@@ -108,21 +108,6 @@ int frame
 		R += zoom_rate * dt;
 	}
 
-	if(kbd[SDL_SCANCODE_A])
-	{
-		for(std::vector<Object>::iterator i = objects.begin(); i != objects.end(); ++i)
-		{
-			i->activate();
-		}
-	}
-	if(kbd[SDL_SCANCODE_D])
-	{
-		for(std::vector<Object>::iterator i = objects.begin(); i != objects.end(); ++i)
-		{
-			i->deactivate();
-		}
-	}
-
 	if(kbd[SDL_SCANCODE_ESCAPE])
 	{
 		return 1;
