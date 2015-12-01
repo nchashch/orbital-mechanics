@@ -6,16 +6,16 @@
 class Mesh
 {
 public:
-	Mesh(const char* filename);
-	~Mesh();
-	void render
-		(GLuint program,
-		 glm::mat4 modelView, glm::mat4 projection,
-		 glm::vec4 color, GLenum mode) const;
+    Mesh(const char* filename);
+    ~Mesh();
+    void render
+    (GLuint program,
+     glm::mat4 modelView, glm::mat4 projection,
+     glm::vec4 color, GLenum mode) const;
 private:
-	GLuint vbuffer;
-	GLuint ibuffer;
-	int count;
-	size_t positions_size;
+    GLuint vbuffer;
+    GLuint ibuffer;
+    int count;
+    size_t positions_size;
 };
 #endif
