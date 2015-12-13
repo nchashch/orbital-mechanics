@@ -3,7 +3,6 @@
 
 #include <glm.hpp>
 #include <string>
-#include "Circle.h"
 
 struct KeplerianElements {
     float e; /* eccentricity */
